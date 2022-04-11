@@ -3,8 +3,10 @@ import json
 
 import feedparser
 
+from yanr.parser.parser import Parser
 
-class News3d:
+
+class News3d(Parser):
     def __init__(self, storage='news3d.json', rss='https://3dnews.ru/news/rss/'):
         """Parse 3DNews RSS (https://3dnews.ru/)
 
@@ -12,6 +14,7 @@ class News3d:
             storage (str): url to database or path to file
             rss (str): url from 3DNews RSS list https://3dnews.ru/subscribe
         """
+        super().__init__(storage=storage)
         self.storage = storage
         self.rss = rss
 
