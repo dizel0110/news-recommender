@@ -9,7 +9,7 @@ from pathlib import Path
 
 class Ibrae(Parser):
     def __init__(self, storage: str = 'ibrae.json',
-                 rss: str = 'http://www.ibrae.ac.ru/news/38') -> None:
+                 url: str = 'http://www.ibrae.ac.ru/news/38') -> None:
         """Parse 3DNews RSS (https://3dnews.ru/)
 
         Args:
@@ -20,11 +20,22 @@ class Ibrae(Parser):
         """
         super().__init__(storage=storage)
         self.storage = storage
-        self.rss = rss
+        self.url = url
 
         #urlpage = 'http://www.ibrae.ac.ru/news/38'
-        urlpage = rss
+        urlpage = url
         # as browser
+
+
+        storage = json.dumps(news_dict, indent=4)
+
+
+    def __call__(self) -> None:
+        """Parse source and save data to storage
+
+        Returns: None
+        """
+
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)"
         }
@@ -63,15 +74,6 @@ class Ibrae(Parser):
 
             news_dict.update({url_it: current_news})
 
-        storage = json.dumps(news_dict, indent=4)
-
-
-    def __call__(self) -> None:
-        """Parse source and save data to storage
-
-        Returns: None
-        """
-        d = feedparser.parse(self.rss)
         p = Path(self.storage)
         if p.suffix == '.json':
             with open(p, 'w') as f:
