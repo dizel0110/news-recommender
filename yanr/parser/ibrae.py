@@ -1,7 +1,7 @@
 import copy
 import urllib.request as urlRequest
 import json
-import feedparser
+
 from yanr.parser.parser import Parser
 from bs4 import BeautifulSoup, SoupStrainer
 from pathlib import Path
