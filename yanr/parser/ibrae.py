@@ -1,33 +1,26 @@
 import copy
 import urllib.request as urlRequest
 import json
-
-from yanr.parser.parser import Parser
-from bs4 import BeautifulSoup, SoupStrainer
 from pathlib import Path
 
+from bs4 import BeautifulSoup, SoupStrainer
+
+from yanr.parser.parser import Parser
 
 class Ibrae(Parser):
     def __init__(self, storage: str = 'ibrae.json',
                  url: str = 'http://www.ibrae.ac.ru/news/38') -> None:
-        """Parse 3DNews RSS (https://3dnews.ru/)
+        """Patrsing Ibrae news (www.ibrae.ac.ru/news/38)
 
         Args:
             storage (str): url to database or path to file
-            rss (str): url from 3DNews RSS list 'http://www.ibrae.ac.ru/news/38'
+            url (str): url from IBRAE 'http://www.ibrae.ac.ru/news/38'
 
         Returns: None
         """
         super().__init__(storage=storage)
         self.storage = storage
         self.url = url
-
-        #urlpage = 'http://www.ibrae.ac.ru/news/38'
-        urlpage = url
-        # as browser
-
-
-        storage = json.dumps(news_dict, indent=4)
 
 
     def __call__(self) -> None:
@@ -39,7 +32,7 @@ class Ibrae(Parser):
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)"
         }
-        req = urlRequest.Request(urlpage, headers=headers)
+        req = urlRequest.Request(self.url, headers=headers)
         # open the url
         url = urlRequest.urlopen(req)
         # get the source code
@@ -74,12 +67,15 @@ class Ibrae(Parser):
 
             news_dict.update({url_it: current_news})
 
+        d = news_dict
+        #print(d)
         p = Path(self.storage)
         if p.suffix == '.json':
             with open(p, 'w') as f:
                 json.dump(d, f, indent=2)
         else:
             raise NotImplementedError('Database')
+
 
 
 if __name__ == '__main__':
