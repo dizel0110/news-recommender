@@ -96,7 +96,7 @@ type-test-job-docker:   # This job also runs in the test stage.
       - venv/
   script:
     - source venv/bin/activate
-    - mypy mypy --ignore-missing-imports --non-interactive --install-types yanr
+    - mypy --ignore-missing-imports --non-interactive --install-types yanr
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
