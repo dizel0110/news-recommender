@@ -71,7 +71,7 @@ lint-test-job-docker:   # This job also runs in the test stage.
   tags:
     - docker
   script:
-    - flake8 --max-line-length=100 yanr
+    - flake8 --max-line-length=88 yanr
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
