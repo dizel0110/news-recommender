@@ -37,9 +37,17 @@ build-job-docker:
   stage: build
   tags:
     - docker
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
   script:
-    - echo 'Building with the docker executor...'
-    - pip3 install -r requirements/dev.txt
+    - pip3 install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install -r requirements/dev.txt
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
@@ -68,6 +76,8 @@ lint-test-job-powershell:   # This job also runs in the test stage.
 
 lint-test-job-docker:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   tags:
     - docker
   script:
