@@ -49,7 +49,7 @@ build-job-docker:
     - source venv/bin/activate
     - pip install -r requirements/dev.txt
 
-unit-test-job:   # This job runs in the test stage.
+.unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - echo "Running unit tests... This will take about 60 seconds."
