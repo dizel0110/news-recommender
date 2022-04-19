@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Union, Mapping, Any
+# from typing import Dict, List, Union, Mapping, Any
 from pathlib import Path
 
 import requests
