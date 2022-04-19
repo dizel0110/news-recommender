@@ -37,23 +37,89 @@ build-job-docker:
   stage: build
   tags:
     - docker
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
   script:
-    - echo 'Building with the docker executor...'
-    - pip3 install -r requirements/dev.txt
+    - pip3 install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install -r requirements/dev.txt
 
-unit-test-job:   # This job runs in the test stage.
+unit-test-job-bash:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
+  tags:
+    - bash
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
+    - echo "Running unit tests... This will take about 1 seconds."
+    - sleep 1
     - echo "Code coverage is 90%"
 
-lint-test-job:   # This job also runs in the test stage.
+unit-test-job-powershell:   # This job runs in the test stage.
+  stage: test    # It only starts when the job in the build stage completes successfully.
+  tags:
+    - powershell
+  script:
+    - echo "Running unit tests... This will take about 1 seconds."
+    - sleep 1
+    - echo "Code coverage is 90%"
+
+unit-test-job-docker:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - docker
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  script:
+    - source venv/bin/activate
+    - pytest tests
+
+lint-test-job-bash:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - bash
+  script:
+    - echo "Linting code... This will take about 1 seconds."
+    - sleep 1
+    - echo "No lint issues found."
+
+lint-test-job-powershell:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - powershell
   script:
     - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
+    - sleep 1
     - echo "No lint issues found."
+
+lint-test-job-docker:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - docker
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  script:
+    - source venv/bin/activate
+    - flake8 --max-line-length=88 yanr
+
+type-test-job-docker:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - docker
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  script:
+    - source venv/bin/activate
+    - mypy --ignore-missing-imports --non-interactive --install-types yanr
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
