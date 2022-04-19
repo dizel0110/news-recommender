@@ -78,6 +78,10 @@ lint-test-job-docker:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
   tags:
     - docker
   script:
