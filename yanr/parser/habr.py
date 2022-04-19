@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Mapping, Any
 from pathlib import Path
 
 import requests
@@ -30,7 +30,7 @@ class HabrParser(Parser):
         """
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko)"
+            "AppleWebKit/537.36 (KHTML, like Gecko)"
         }
         response = requests.get(self.url, headers=headers)
 
@@ -55,11 +55,11 @@ class HabrParser(Parser):
         else:
             raise NotImplementedError("Not implemented storage data in database")
 
-    def process_article_tag(self, article_tag) -> Dict[str, Union[str, List[str]]]:
+    def process_article_tag(self, article_tag):
         """Get main information about article from the main page habr.com
 
         Args:
-            bs4 tag with summary-information about article
+            article_tag: bs4 tag with summary-information about article
 
         Returns:
             dict {"url": url with full text of article,
