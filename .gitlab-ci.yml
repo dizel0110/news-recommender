@@ -22,14 +22,12 @@ build-job-bash:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
     - bash
-    - powershell
   script:
     - echo 'Building with the bash executor...'
 
 build-job-powershell:
   stage: build
   tags:
-    - bash
     - powershell
   script:
     - echo 'Building with the powershell executor...'
