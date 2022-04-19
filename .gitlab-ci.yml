@@ -49,12 +49,35 @@ build-job-docker:
     - source venv/bin/activate
     - pip install -r requirements/dev.txt
 
-unit-test-job:   # This job runs in the test stage.
+unit-test-job-bash:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
+  tags:
+    - bash
   script:
     - echo "Running unit tests... This will take about 1 seconds."
     - sleep 1
     - echo "Code coverage is 90%"
+
+unit-test-job-powershell:   # This job runs in the test stage.
+  stage: test    # It only starts when the job in the build stage completes successfully.
+  tags:
+    - powershell
+  script:
+    - echo "Running unit tests... This will take about 1 seconds."
+    - sleep 1
+    - echo "Code coverage is 90%"
+
+unit-test-job-docker:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  tags:
+    - docker
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  script:
+    - source venv/bin/activate
+    - pytest tests
 
 lint-test-job-bash:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
