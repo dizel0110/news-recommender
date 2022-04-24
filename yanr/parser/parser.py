@@ -23,7 +23,7 @@ class Parser:
     def save(self, data) -> None:
         """Save information to storage
 
-        Args: 
+        Args:
             data: list of dicts of habr articles
 
         Returns: None
