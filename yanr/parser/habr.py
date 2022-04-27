@@ -1,6 +1,4 @@
-import json
 # from typing import Dict, List, Union, Mapping, Any
-from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
@@ -28,15 +26,24 @@ class HabrParser(Parser):
 
         Returns: None
         """
+        habr_data = self.parse_habr_summaries()
+        self.save(habr_data)
+
+    def parse_habr_summaries(self):
+        """Parse source from habr.com
+
+        Returns: None
+        """
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
             "AppleWebKit/537.36 (KHTML, like Gecko)"
         }
         response = requests.get(self.url, headers=headers)
 
-        habr_data = list()
+        habr_data = {"status": response.status_code, "news": []}
 
         if response.ok:
+
             soup = BeautifulSoup(response.text, "html.parser")
             aritcles_items = soup.find_all(
                 "article", {"class": "tm-articles-list__item"}
@@ -46,14 +53,9 @@ class HabrParser(Parser):
                 item_dict = self.process_article_tag(article_item)
 
                 if item_dict:
-                    habr_data.append(item_dict)
+                    habr_data["news"].append(item_dict)
 
-        storage_path = Path(self.storage)
-        if storage_path.suffix == ".json":
-            with open(storage_path, "w") as fw:
-                json.dump(habr_data, fw, indent=2, ensure_ascii=False)
-        else:
-            raise NotImplementedError("Not implemented storage data in database")
+        return habr_data
 
     def process_article_tag(self, article_tag):
         """Get main information about article from the main page habr.com
@@ -84,7 +86,7 @@ class HabrParser(Parser):
         )
         article_dict["title"] = article_title
 
-        # get hubs
+        # get tags
         hubs_tag = article_tag.find("div", {"class": "tm-article-snippet__hubs"})
         article_hubs = [
             tag.find("span").text
@@ -92,22 +94,22 @@ class HabrParser(Parser):
                 "span", {"class": "tm-article-snippet__hubs-item"}
             )
         ]
-        article_dict["hubs"] = article_hubs
+        article_dict["tags"] = article_hubs
 
         # get short summary
         snippet_tags = article_tag.find_all("p")
         if snippet_tags:
-            article_snippet = " ".join(snippet_tag.text for snippet_tag in snippet_tags)
+            article_text = " ".join(snippet_tag.text for snippet_tag in snippet_tags)
         else:
-            article_snippet = ""
+            article_text = ""
 
-        article_dict["snippet"] = article_snippet
+        article_dict["text"] = article_text
 
         return article_dict
 
 
 def main():
-    hp = HabrParser()
+    hp = HabrParser(url="https://habr.com/ru/all/page2/")
     hp()
 
 
