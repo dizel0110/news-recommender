@@ -68,6 +68,7 @@ unit-test-job-powershell:   # This job runs in the test stage.
     - echo "Code coverage is 90%"
 
 unit-test-job-docker:   # This job also runs in the test stage.
+  image: python:3.8
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   tags:
     - docker
@@ -98,6 +99,7 @@ lint-test-job-powershell:   # This job also runs in the test stage.
     - echo "No lint issues found."
 
 lint-test-job-docker:   # This job also runs in the test stage.
+  image: python:3.8
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   tags:
     - docker
@@ -110,6 +112,7 @@ lint-test-job-docker:   # This job also runs in the test stage.
     - flake8 --max-line-length=88 yanr
 
 type-test-job-docker:   # This job also runs in the test stage.
+  image: python:3.8
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   tags:
     - docker
