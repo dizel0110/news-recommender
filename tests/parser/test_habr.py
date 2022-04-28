@@ -1,10 +1,10 @@
 import json
-from yanr.parser.habr import HabrParser
+from yanr.parser.habr import Habr
 
 
 def test_habr_parser_status200(request, monkeypatch):
     monkeypatch.chdir(request.fspath.dirname)
-    p = HabrParser()
+    p = Habr()
     p()
     with open('habr.json') as f:
         d = json.load(f)
@@ -13,7 +13,7 @@ def test_habr_parser_status200(request, monkeypatch):
 
 def test_habr_parser_correct_keys_in_json(request, monkeypatch):
     monkeypatch.chdir(request.fspath.dirname)
-    p = HabrParser()
+    p = Habr()
     p()
     with open('habr.json') as f:
         d = json.load(f)

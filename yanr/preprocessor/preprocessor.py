@@ -1,26 +1,22 @@
 import functools
-from typing import Dict
 
 from yanr.base.base import Base
 from yanr.base.base import click_options as base_options
 
 
-class Parser(Base):
+class Preprocessor(Base):
     def __init__(self,
-                 source: str = 'example.com',
-                 destination: str = 'parsed_data.json') -> None:
+                 source: str = 'parsed_data.json',
+                 destination: str = 'preprocessed_data.json') -> None:
         """Base class for preprocessors
 
         Args:
-            source (str): url
+            source (str): url to database or path to file
             destination (str): url to database or path to file
 
         Returns: None
         """
         super().__init__(source=source, destination=destination)
-
-    def load(self) -> Dict:
-        raise NotImplementedError()
 
 
 def click_options(func):

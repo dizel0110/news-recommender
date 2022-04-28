@@ -1,25 +1,24 @@
-# from typing import Dict, List, Union, Mapping, Any
-
 import requests
 from bs4 import BeautifulSoup
 
-from yanr.parser.parser import Parser
+import click
+
+from yanr.parser.parser import Parser, click_options
 
 
-class HabrParser(Parser):
-    def __init__(
-        self, storage: str = "habr.json", url: str = "https://habr.com/ru/all/"
-    ) -> None:
+class Habr(Parser):
+    def __init__(self,
+                 source: str = "https://habr.com/ru/all/",
+                 destination: str = "habr.json") -> None:
         """Parse latest publications on habr.com (https://habr.com/)
 
         Args:
-            storage (str): url to database or path to json file storage
-            url (str): url of parsing site
+            source (str): url
+            destination (str): url to database or path to file
 
         Returns: None
         """
-        super().__init__(storage=storage)
-        self.url = url
+        super().__init__(source=source, destination=destination)
 
     def __call__(self) -> None:
         """Parse source and save data to storage
@@ -36,9 +35,9 @@ class HabrParser(Parser):
         """
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko)"
+                          "AppleWebKit/537.36 (KHTML, like Gecko)"
         }
-        response = requests.get(self.url, headers=headers)
+        response = requests.get(self.source, headers=headers)
 
         habr_data = {"status": response.status_code, "news": []}
 
@@ -80,9 +79,8 @@ class HabrParser(Parser):
 
         # get title
         article_title = (
-            article_tag.find("a", {"class": "tm-article-snippet__title-link"})
-            .find("span")
-            .text
+            article_tag.find("a", {"class": "tm-article-snippet__title-link"}).find(
+                "span").text
         )
         article_dict["title"] = article_title
 
@@ -108,10 +106,12 @@ class HabrParser(Parser):
         return article_dict
 
 
-def main():
-    hp = HabrParser(url="https://habr.com/ru/all/page2/")
-    hp()
+@click.command(context_settings=dict(ignore_unknown_options=True,
+                                     allow_extra_args=True))
+@click_options
+def habr_cli(source, destination):
+    Habr(source, destination)()
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    habr_cli()
