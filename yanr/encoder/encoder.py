@@ -5,14 +5,12 @@ from yanr.base.base import click_options as base_options
 
 
 class Encoder(Base):
-    def __init__(self,
-                 source: str = 'preprocessed_data.json',
-                 destination: str = 'encoded_data.json') -> None:
-        """Base class for preprocessors
+    def __init__(self, source: str, destination: str) -> None:
+        """Abstract class for encoders
 
         Args:
-            source (str): url to database or path to file
-            destination (str): url to database or path to file
+            source (str): url or path to file
+            destination (str): url or path to file
 
         Returns: None
         """

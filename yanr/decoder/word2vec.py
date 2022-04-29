@@ -3,18 +3,18 @@ from pathlib import Path
 
 import click
 
-from yanr.encoder.encoder import Encoder, click_options
+from yanr.decoder.decoder import Decoder, click_options
 
 
-class Word2vec(Encoder):
+class Word2vec(Decoder):
     def __init__(self, model: str, source: str, destination: str,
                  binary: bool = True) -> None:
-        """Word2vec encoder
+        """Word2vec decoder
 
         Args:
             model (str): path to word2vec model
-            source (str): url to database or path to file
-            destination (str): url to database or path to file
+            source (str): url or path to file
+            destination (str): url  or path to file
             binary (bool): is model binary?
             https://rusvectores.org/ru/models/
             https://github.com/RaRe-Technologies/gensim-data
@@ -26,18 +26,19 @@ class Word2vec(Encoder):
         self.binary = binary
 
     def __call__(self) -> None:
-        """Make text encodings
+        """Decode text encodings
 
         Returns: None
         """
         d = self.load()
         p = Path(self.model)
         m = KeyedVectors.load_word2vec_format(p, binary=self.binary)
+        print(d)
         for n in d['news']:
-            n['title_encoding'] = [m.key_to_index.get(x.strip(), -1)
-                                   for x in n['title'].split()]
-            n['text_encoding'] = [m.key_to_index.get(x.strip(), -1)
-                                  for x in n['text'].split()]
+            n['title'] = ' '.join(m.index_to_key[x] if x != -1 else '<UNK>'
+                                  for x in n['title_encoding'])
+            n['text'] = ' '.join(m.index_to_key[x] if x != -1 else '<UNK>'
+                                 for x in n['text_encoding'])
         self.save(d)
 
 

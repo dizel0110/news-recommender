@@ -4,9 +4,9 @@ from yanr.base.base import Base
 from yanr.base.base import click_options as base_options
 
 
-class Parser(Base):
+class Decoder(Base):
     def __init__(self, source: str, destination: str) -> None:
-        """Base class for parsers
+        """Abstract class for decoders
 
         Args:
             source (str): url or path to file

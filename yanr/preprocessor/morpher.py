@@ -7,9 +7,7 @@ from yanr.preprocessor.preprocessor import Preprocessor, click_options
 
 
 class Morpher(Preprocessor):
-    def __init__(self,
-                 source: str,
-                 destination: str,
+    def __init__(self, source: str, destination: str,
                  morpher_kwargs: Optional[Dict] = None) -> None:
         """Morpher analyzer
 
