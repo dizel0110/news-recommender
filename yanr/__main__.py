@@ -10,6 +10,8 @@ from yanr.decoder import Word2vec as DecoderWord2vec
 from yanr.decoder import word2vec_cli as decoder_word2vec_cli
 from yanr.model import Word2vec, word2vec_cli
 from yanr.postprocessor import Comparator, comparator_cli
+from yanr.viewer import Comparator as ViewerComparator
+from yanr.viewer import comparator_cli as viewer_comparator_cli
 
 cls2cli = {
     Cleaner.__name__.lower(): cleaner_cli,
@@ -23,6 +25,7 @@ cls2cli = {
     Word2vec.__name__.lower(): word2vec_cli,
     f'encoder.{EncoderWord2vec.__name__.lower()}': encoder_word2vec_cli,
     f'decoder.{DecoderWord2vec.__name__.lower()}': decoder_word2vec_cli,
+    f'viewer.{ViewerComparator.__name__.lower()}': viewer_comparator_cli,
 }
 
 
