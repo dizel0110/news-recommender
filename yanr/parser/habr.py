@@ -1,6 +1,7 @@
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
-
 import click
 
 from yanr.parser.parser import Parser, click_options
@@ -103,6 +104,11 @@ class Habr(Parser):
 
         article_dict["text"] = article_text
 
+        # get date
+        article_datetime = article_tag.find("time")['datetime']
+        article_datetime = datetime.strptime(article_datetime, '%Y-%m-%dT%H:%M:%S.%fZ')
+        article_dict["datetime"] = article_datetime.isoformat()
+
         return article_dict
 
 
@@ -110,7 +116,8 @@ class Habr(Parser):
                                      allow_extra_args=True))
 @click_options
 def habr_cli(source, destination):
-    Habr(source, destination)()
+    habr_parser = Habr(source, destination)
+    habr_parser()
 
 
 if __name__ == '__main__':
