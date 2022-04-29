@@ -29,13 +29,14 @@ class Morpher(Preprocessor):
         """
         d = self.load()
         m = pymorphy2.MorphAnalyzer(**self.morpher_kwargs)
-        for n in d['news']:
-            n['title'] = ' '.join(
-                f'{x.normal_form}_{x.tag.POS}'
-                for x in [m.parse(y.strip())[0] for y in n['title'].split()])
-            n['text'] = ' '.join(
-                f'{x.normal_form}_{x.tag.POS}'
-                for x in [m.parse(y.strip())[0] for y in n['text'].split()])
+        fields = ['title', 'text']
+        preprocessed_fields = [f'preprocessed_{x}' for x in fields]
+        for f, pf in zip(fields, preprocessed_fields):
+            for n in d['news']:
+                source_field = pf if pf in n else f
+                n[pf] = ' '.join(
+                    f'{x.normal_form}_{x.tag.POS}'
+                    for x in [m.parse(y.strip())[0] for y in n[source_field].split()])
         self.save(d)
 
 

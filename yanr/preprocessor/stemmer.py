@@ -31,9 +31,12 @@ class Stemmer(Preprocessor):
         """
         d = self.load()
         s = getattr(stem, self.stemmer)(**self.stemmer_kwargs)
-        for n in d['news']:
-            n['title'] = ' '.join(s.stem(x.strip()) for x in n['title'].split())
-            n['text'] = ' '.join(s.stem(x.strip()) for x in n['text'].split())
+        fields = ['title', 'text']
+        preprocessed_fields = [f'preprocessed_{x}' for x in fields]
+        for f, pf in zip(fields, preprocessed_fields):
+            for n in d['news']:
+                source_field = pf if pf in n else f
+                n[pf] = ' '.join(s.stem(x.strip()) for x in n[source_field].split())
         self.save(d)
 
 

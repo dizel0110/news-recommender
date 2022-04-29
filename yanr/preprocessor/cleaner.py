@@ -25,12 +25,14 @@ class Cleaner(Preprocessor):
         Returns: None
         """
         d = self.load()
-        for n in d['news']:
-            if self.punctuation:
-                n['title'] = n['title'].translate(
-                    str.maketrans('', '', string.punctuation))
-                n['text'] = n['title'].translate(
-                    str.maketrans('', '', string.punctuation))
+        fields = ['title', 'text']
+        preprocessed_fields = [f'preprocessed_{x}' for x in fields]
+        for f, pf in zip(fields, preprocessed_fields):
+            for n in d['news']:
+                source_field = pf if pf in n else f
+                if self.punctuation:
+                    n[pf] = n[source_field].translate(
+                        str.maketrans('', '', string.punctuation))
         self.save(d)
 
 

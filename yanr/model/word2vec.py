@@ -37,7 +37,7 @@ class Word2vec(Model):
             n['title_embedding'] = [m.vectors[x].tolist() if x != -1 else None
                                     for x in n['title_encoding']]
             n['text_embedding'] = [m.vectors[x].tolist() if x != -1 else None
-                                   for x in n['title_encoding']]
+                                   for x in n['text_encoding']]
         self.save(d)
 
 

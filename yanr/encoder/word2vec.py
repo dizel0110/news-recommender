@@ -35,9 +35,9 @@ class Word2vec(Encoder):
         m = KeyedVectors.load_word2vec_format(p, binary=self.binary)
         for n in d['news']:
             n['title_encoding'] = [m.key_to_index.get(x.strip(), -1)
-                                   for x in n['title'].split()]
+                                   for x in n['preprocessed_title'].split()]
             n['text_encoding'] = [m.key_to_index.get(x.strip(), -1)
-                                  for x in n['text'].split()]
+                                  for x in n['preprocessed_text'].split()]
         self.save(d)
 
 

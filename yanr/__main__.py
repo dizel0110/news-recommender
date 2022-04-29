@@ -9,9 +9,11 @@ from yanr.encoder import word2vec_cli as encoder_word2vec_cli
 from yanr.decoder import Word2vec as DecoderWord2vec
 from yanr.decoder import word2vec_cli as decoder_word2vec_cli
 from yanr.model import Word2vec, word2vec_cli
+from yanr.postprocessor import Comparator, comparator_cli
 
 cls2cli = {
     Cleaner.__name__.lower(): cleaner_cli,
+    Comparator.__name__.lower(): comparator_cli,
     Habr.__name__.lower(): habr_cli,
     Ibrae.__name__.lower(): ibrae_cli,
     Morpher.__name__.lower(): morpher_cli,

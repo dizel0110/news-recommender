@@ -17,8 +17,8 @@ def test_stemmer_porter(request, monkeypatch):
     s()
     with open(destination) as f:
         d = json.load(f)
-    assert d['news'][-1]['title'].split()[4] == 'jump'
-    assert d['news'][-1]['text'].split()[1] == 'zombi'
+    assert d['news'][-1]['preprocessed_title'].split()[4] == 'jump'
+    assert d['news'][-1]['preprocessed_text'].split()[1] == 'zombi'
 
 
 def test_stemmer_snowball(request, monkeypatch):
@@ -31,8 +31,8 @@ def test_stemmer_snowball(request, monkeypatch):
     s()
     with open(destination) as f:
         d = json.load(f)
-    assert d['news'][0]['title'].split()[1] == 'скил'
-    assert d['news'][0]['text'].split()[3] == 'нанима'
+    assert d['news'][0]['preprocessed_title'].split()[1] == 'скил'
+    assert d['news'][0]['preprocessed_text'].split()[3] == 'нанима'
 
 
 def test_stemmer_lancaster(request, monkeypatch):
@@ -45,5 +45,5 @@ def test_stemmer_lancaster(request, monkeypatch):
     s()
     with open(destination) as f:
         d = json.load(f)
-    assert d['news'][-1]['title'].split()[4] == 'jump'
-    assert d['news'][-1]['text'].split()[1] == 'zomby'
+    assert d['news'][-1]['preprocessed_title'].split()[4] == 'jump'
+    assert d['news'][-1]['preprocessed_text'].split()[1] == 'zomby'
