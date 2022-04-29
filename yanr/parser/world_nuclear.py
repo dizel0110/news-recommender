@@ -47,7 +47,7 @@ class WorldNuclear(Parser):
             if resp.ok:
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 body_tag = soup.find('div', {'class': 'ArticleBody'})
-                # if we don't find information about published date before
+                # if we didn't find information about published date before
                 if 'datetime' not in news_dict.keys():
                     date = datetime.strptime(body_tag.find('p').text, "%d %B %Y")
                     news_dict['datetime'] = date.isoformat()
