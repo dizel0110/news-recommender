@@ -116,11 +116,9 @@ class Habr(Parser):
                                      allow_extra_args=True))
 @click_options
 def habr_cli(source, destination):
-    print(source)
-    print(destination)
-    Habr(source, destination)()
+    habr_parser = Habr(source, destination)
+    habr_parser()
 
 
 if __name__ == '__main__':
-    habr_parser = Habr()
-    habr_parser()
+    habr_cli()
