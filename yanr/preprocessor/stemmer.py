@@ -7,12 +7,9 @@ from yanr.preprocessor.preprocessor import Preprocessor, click_options
 
 
 class Stemmer(Preprocessor):
-    def __init__(self,
-                 source: str = 'parsed_data.json',
-                 destination: str = 'preprocessed_data.json',
-                 stemmer: str = 'PorterStemmer',
+    def __init__(self, source: str, destination: str, stemmer: str = 'PorterStemmer',
                  stemmer_kwargs: Optional[Dict] = None) -> None:
-        """Base class for preprocessors
+        """Stemmer
 
         Args:
             source (str): url to database or path to file
@@ -28,7 +25,7 @@ class Stemmer(Preprocessor):
         self.stemmer_kwargs = {} if stemmer_kwargs is None else stemmer_kwargs
 
     def __call__(self) -> None:
-        """Stem parsed data
+        """Stem text
 
         Returns: None
         """

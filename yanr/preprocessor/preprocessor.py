@@ -5,14 +5,12 @@ from yanr.base.base import click_options as base_options
 
 
 class Preprocessor(Base):
-    def __init__(self,
-                 source: str = 'parsed_data.json',
-                 destination: str = 'preprocessed_data.json') -> None:
+    def __init__(self, source: str, destination: str) -> None:
         """Base class for preprocessors
 
         Args:
-            source (str): url to database or path to file
-            destination (str): url to database or path to file
+            source (str): url or path to file
+            destination (str): url or path to file
 
         Returns: None
         """

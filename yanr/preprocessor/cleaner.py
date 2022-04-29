@@ -6,17 +6,13 @@ from yanr.preprocessor.preprocessor import Preprocessor, click_options
 
 
 class Cleaner(Preprocessor):
-    def __init__(self,
-                 source: str,
-                 destination: str,
-                 punctuation: bool = True) -> None:
+    def __init__(self, source: str, destination: str, punctuation: bool = True) -> None:
         """Text cleaner
 
         Args:
             source (str): url or path to file
             destination (str): url or path to file
             punctuation (bool): remove punctuation
-
 
         Returns: None
         """

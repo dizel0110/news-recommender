@@ -7,14 +7,12 @@ import click
 
 
 class Base:
-    def __init__(self,
-                 source: str = 'input.json',
-                 destination: str = 'output.json') -> None:
-        """Base class for preprocessors
+    def __init__(self, source: str, destination: str) -> None:
+        """Abstract class for all classes
 
         Args:
-            source (str): url to database or path to file
-            destination (str): url to database or path to file
+            source (str): url or path to file
+            destination (str): url or path to file
 
         Returns: None
         """
