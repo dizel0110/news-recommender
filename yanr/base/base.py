@@ -47,7 +47,8 @@ class Base:
 
         Returns: None
         """
-        p = Path(self.destination)
+        p = Path(self.destination).resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
         if p.suffix == ".json":
             with open(p, "w") as f:
                 json.dump(data, f, indent=2)
@@ -56,10 +57,8 @@ class Base:
 
 
 def click_options(func):
-    @click.option('-s', '--source', default='input.json',
-                  help='url to database or path to file')
-    @click.option('-d', '--destination', default='output.json',
-                  help='url to database or path to file')
+    @click.option('-s', '--source', help='url or path to file')
+    @click.option('-d', '--destination', help='url or path to file')
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
