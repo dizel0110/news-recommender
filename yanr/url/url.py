@@ -1,6 +1,6 @@
 from urllib.request import urlopen
 import shutil
-import requests
+# import requests
 from pathlib import Path
 from gzip import GzipFile
 from zipfile import ZipFile
