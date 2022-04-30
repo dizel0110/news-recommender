@@ -37,7 +37,10 @@ class Comparator(Viewer):
         s2 = self.load()
         self.source = source
         fields = ['text', 'title']
+        p = Path(self.destination).resolve().parent
         for f in fields:
+            fp = p / f
+            fp.mkdir(parents=True, exist_ok=True)
             texts1 = [x[f] for x in s1['news']]
             texts2 = [x[f] for x in s2['news']]
             texts1_br = [" ".join(y if i % 5 != 0 or i == 0 else "<br>" + y
@@ -53,10 +56,7 @@ class Comparator(Viewer):
             fig.update(data=[{'customdata': cd, 'hovertemplate': ht}])
             fig.update_layout(xaxis={'title': s['source2']},
                               yaxis={'title': s['source']})
-            p = Path(self.destination) / f
-            p.mkdir(parents=True, exist_ok=True)
-            fig.write_html(p / 'vectors_vectors2.html')
-
+            fig.write_html(fp / 'vectors_vectors2.html')
             b = np.array(s[f'{f}_embedding']['vector_vectors2'], dtype=float)
             ind = np.argsort(b)[::-1]
             fig = go.Figure(go.Bar(
@@ -65,7 +65,7 @@ class Comparator(Viewer):
                 orientation='h'))
             fig.update_layout(title=s['source'], yaxis={'visible': False,
                                                         'showticklabels': False})
-            fig.write_html(p / 'vector_vectors2.html')
+            fig.write_html(fp / 'vector_vectors2.html')
 
             b = np.array(s[f'{f}_embedding']['vector2_vectors'], dtype=float)
             ind = np.argsort(b)[::-1]
@@ -75,7 +75,8 @@ class Comparator(Viewer):
                 orientation='h'))
             fig.update_layout(title=s['source2'], yaxis={'visible': False,
                                                          'showticklabels': False})
-            fig.write_html(p / 'vector2_vectors.html')
+            fig.write_html(fp / 'vector2_vectors.html')
+        self.save({})
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,

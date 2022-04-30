@@ -1,0 +1,4 @@
+include: "rules/comparator.smk"
+
+rule all:
+    input: rules.view.output
