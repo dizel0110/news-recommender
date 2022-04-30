@@ -33,7 +33,6 @@ class Word2vec(Decoder):
         d = self.load()
         p = Path(self.model)
         m = KeyedVectors.load_word2vec_format(p, binary=self.binary)
-        print(d)
         for n in d['news']:
             n['title_decoding'] = ' '.join(
                 m.index_to_key[x] if x != -1 else '<UNK>' for x in n['title_encoding'])
