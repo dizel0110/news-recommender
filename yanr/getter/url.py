@@ -2,7 +2,7 @@ from urllib.request import urlopen
 import shutil
 # import requests
 from pathlib import Path
-from gzip import GzipFile
+import gzip
 from zipfile import ZipFile
 import tarfile
 from io import BytesIO
@@ -18,7 +18,7 @@ class Url(Getter):
         """Get data from url
 
         Args:
-            source (str): url
+            source (str): url or path to file
             destination (str): url or path to file
             mode (str): module to retrieve data (urllib or requests)
             unpack (bool): unpack source if one is archive
@@ -34,6 +34,11 @@ class Url(Getter):
 
         Returns: None
         """
+        try:
+            source_path = Path(self.source).resolve()
+            is_local = source_path.exists()
+        except Exception:
+            is_local = False
         if '://' in self.destination:
             raise NotImplementedError('Url destination')
         else:
@@ -43,28 +48,40 @@ class Url(Getter):
             if self.unpack and self.source.endswith('tar.gz') \
                     or self.source.endswith('tgz'):
                 p.mkdir(parents=True, exist_ok=True)
-                with urlopen(self.source) as r:
-                    with tarfile.open(name=None, fileobj=BytesIO(r.read())) as u:
-                        print(u.getmembers())
+                if is_local:
+                    with tarfile.open(self.source) as u:
                         u.extractall(p)
+                else:
+                    with urlopen(self.source) as r:
+                        with tarfile.open(name=None, fileobj=BytesIO(r.read())) as u:
+                            u.extractall(p)
             elif self.unpack and self.source.endswith('.gz'):
-                with urlopen(self.source) as r, open(p, 'wb') as f:
-                    with GzipFile(fileobj=r) as u:
-                        shutil.copyfileobj(u, f)
+                if is_local:
+                    # https://stackoverflow.com/questions/31028815/how-to-unzip-gz-file-using-python
+                    with gzip.open(self.source, 'rb') as fi:
+                        with open(p, 'wb') as fo:
+                            shutil.copyfileobj(fi, fo)
+                else:
+                    with urlopen(self.source) as r, open(p, 'wb') as f:
+                        with gzip.GzipFile(fileobj=r) as u:
+                            shutil.copyfileobj(u, f)
             elif self.unpack and self.source.endswith('.zip'):
                 p.mkdir(parents=True, exist_ok=True)
-                with urlopen(self.source) as r:
-                    with ZipFile(BytesIO(r.read())) as u:
-                        print(u.namelist())
+                if is_local:
+                    with ZipFile(self.source) as u:
                         u.extractall(p)
+                else:
+                    with urlopen(self.source) as r:
+                        with ZipFile(BytesIO(r.read())) as u:
+                            u.extractall(p)
             else:
-                with urlopen(self.source) as r, open(p, 'wb') as f:
-                    shutil.copyfileobj(r, f)
+                if is_local:
+                    shutil.copy(self.source, p)
+                else:
+                    with urlopen(self.source) as r, open(p, 'wb') as f:
+                        shutil.copyfileobj(r, f)
         elif self.mode == 'requests':
             raise NotImplementedError(self.mode)
-            # r = requests.get(self.source)
-            # with open(p, 'wb') as f:
-            #     f.write(r.content)
         else:
             raise ValueError(self.mode)
 

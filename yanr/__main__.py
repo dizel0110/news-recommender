@@ -1,7 +1,8 @@
 import click
 
 from yanr.getter import Url, url_cli
-from yanr.parser import Habr, habr_cli, News3d, news3d_cli, Ibrae, ibrae_cli
+from yanr.parser import Habr, habr_cli, News3d, news3d_cli, Ibrae, ibrae_cli, \
+    Rss, rss_cli
 from yanr.preprocessor import Stemmer, stemmer_cli, Morpher, morpher_cli, \
     Cleaner, cleaner_cli
 from yanr.encoder import Word2vec as EncoderWord2vec
@@ -20,6 +21,7 @@ cls2cli = {
     Ibrae.__name__.lower(): ibrae_cli,
     Morpher.__name__.lower(): morpher_cli,
     News3d.__name__.lower(): news3d_cli,
+    Rss.__name__.lower(): rss_cli,
     Stemmer.__name__.lower(): stemmer_cli,
     Url.__name__.lower(): url_cli,
     Word2vec.__name__.lower(): word2vec_cli,

@@ -1,0 +1,148 @@
+stages:
+  url_rss:
+    cmd: python -m yanr url -s https://3dnews.ru/news/rss/ -d data/raw/3dnews_${id}.html
+    params:
+      - id
+    outs:
+      - data/raw/3dnews_${id}.html
+
+  url_model:
+    cmd: python -m yanr url -s ${model_url} -d data/models/word2vec/model.model
+    params:
+      - model_url
+    outs:
+      - data/models/word2vec/model.model
+
+  parse_rss:
+    cmd: >
+      python -m yanr rss 
+      -s data/raw/3dnews_${id}.html 
+      -d data/parsed/3dnews_${id}.json
+    deps:
+      - data/raw/3dnews_${id}.html
+    params:
+      - id
+    outs:
+      - data/parsed/3dnews_${id}.json
+
+  parse_habr:
+    cmd: python -m yanr habr -s https://habr.com/ru/all/ -d data/parsed/habr_${id}.json
+    params:
+      - id
+    outs:
+      - data/parsed/habr_${id}.json
+
+  clean:
+    foreach:
+      - habr
+      - 3dnews
+    do:
+      cmd: >
+        python -m yanr cleaner 
+        -s data/parsed/${item}_${id}.json 
+        -d data/preprocessed/cleaner/${item}_${id}.json
+      deps:
+        - data/parsed/${item}_${id}.json
+      params:
+        - id
+      outs:
+        - data/preprocessed/cleaner/${item}_${id}.json
+
+  morph:
+    foreach:
+      - habr
+      - 3dnews
+    do:
+      cmd: >
+        python -m yanr morpher 
+        -s data/preprocessed/cleaner/${item}_${id}.json 
+        -d data/preprocessed/morpher/${item}_${id}.json
+      deps:
+        - data/preprocessed/cleaner/${item}_${id}.json
+      params:
+        - id
+      outs:
+        - data/preprocessed/morpher/${item}_${id}.json
+
+  encode:
+    foreach:
+      - habr
+      - 3dnews
+    do:
+      cmd: >
+        python -m yanr encoder.word2vec
+        -s data/preprocessed/morpher/${item}_${id}.json 
+        -d data/encodings/word2vec/${item}_${id}.json 
+        -m data/models/word2vec/model.model
+        ${model_binary}
+      deps:
+        - data/preprocessed/morpher/${item}_${id}.json
+        - data/models/word2vec/model.model
+      params:
+        - id
+      outs:
+        - data/encodings/word2vec/${item}_${id}.json
+
+  decode:
+    foreach:
+      - habr
+      - 3dnews
+    do:
+      cmd: >
+        python -m yanr decoder.word2vec
+        -s data/encodings/word2vec/${item}_${id}.json
+        -d data/decodings/word2vec/${item}_${id}.json
+        -m data/models/word2vec/model.model
+        ${model_binary}
+      deps:
+        - data/encodings/word2vec/${item}_${id}.json
+        - data/models/word2vec/model.model
+      params:
+        - id
+      outs:
+        - data/decodings/word2vec/${item}_${id}.json
+
+  embed:
+    foreach:
+      - habr
+      - 3dnews
+    do:
+      cmd: >
+        python -m yanr word2vec
+        -s data/decodings/word2vec/${item}_${id}.json
+        -d data/embeddings/word2vec/${item}_${id}.json
+        -m data/models/word2vec/model.model
+        ${model_binary}
+      deps:
+        - data/decodings/word2vec/${item}_${id}.json
+        - data/models/word2vec/model.model
+      params:
+        - id
+      outs:
+        - data/embeddings/word2vec/${item}_${id}.json
+
+  compare:
+    cmd: >
+      python -m yanr comparator
+      -s data/embeddings/word2vec/3dnews_${id}.json
+      -s2 data/embeddings/word2vec/habr_${id}.json
+      -d data/postprocessed/comparator/3dnews_habr_${id}.json
+    deps:
+      - data/embeddings/word2vec/3dnews_${id}.json
+      - data/embeddings/word2vec/habr_${id}.json
+    params:
+      - id
+    outs:
+      - data/postprocessed/comparator/3dnews_habr_${id}.json
+
+  view:
+    cmd: >
+      python -m yanr viewer.comparator
+      -s data/postprocessed/comparator/3dnews_habr_${id}.json
+      -d data/viewer/comparator/3dnews_habr_${id}/result.json
+    deps:
+      - data/postprocessed/comparator/3dnews_habr_${id}.json
+    params:
+      - id
+    outs:
+      - data/viewer/comparator/3dnews_habr_${id}/result.json

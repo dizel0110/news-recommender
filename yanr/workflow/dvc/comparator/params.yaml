@@ -1,0 +1,8 @@
+id: 1
+model_url: https://rusvectores.org/static/models/news_upos_cbow_300_2_2017.bin.gz
+#model_url: ../../../../data/models/word2vec/news_upos_cbow_300_2_2017.bin.gz
+#model_url: ../../../../data/models/word2vec/news_upos_cbow_600_2_2018.vec.gz
+#model_url: ../../../../data/models/word2vec/araneum_upos_skipgram_300_2_2018.vec.gz
+#model_url: ../../../../data/models/word2vec/web_upos_cbow_300_20_2017.bin.gz
+model_binary: --binary  # models with .bin extension
+#model_binary: --no-binary  # models with .vec extension
