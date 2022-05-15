@@ -1,0 +1,7 @@
+FROM rayproject/ray:latest-gpu
+COPY . /opt/yanr
+RUN pip install --no-cache-dir -r /opt/yanr/requirements/prod-ray-gpu.txt
+ENV PYTHONPATH="${PYTHONPATH}:/opt/yanr"
+# WORKDIR /opt/yanr/work
+# ENTRYPOINT ["python", "-m", "yanr"]
+# CMD ["url", "-s", "https://www.example.com", "-d", "example.html"]
