@@ -11,3 +11,5 @@ plotly==5.7.0
 pandas==1.4.2
 snakemake==7.5.0
 dvc[s3]==2.10.2
+ray[default]==1.12.0
+redis==4.3.1
