@@ -68,6 +68,7 @@ class Ibrae(Parser):
 
         d = news_dict
         # print(d)
+        d['status'] = 200
         self.save(d)
 
 
