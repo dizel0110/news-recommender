@@ -10,24 +10,20 @@ from yanr.parser.parser import Parser, click_options
 class Habr(Parser):
     def __init__(self,
                  source: str = "https://habr.com/ru/all/",
-                 destination: str = "habr.json") -> None:
+                 destination="habr.json"):
         """Parse latest publications on habr.com (https://habr.com/)
 
         Args:
-            source (str): url
-            destination (str): url to database or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
 
-    def __call__(self) -> None:
-        """Parse source and save data to storage
-
-        Returns: None
-        """
+    def __call__(self):
         habr_data = self.parse_habr_summaries()
-        self.save(habr_data)
+        return self.save(habr_data)
 
     def parse_habr_summaries(self):
         """Parse source from habr.com

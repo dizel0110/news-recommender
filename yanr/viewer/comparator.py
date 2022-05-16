@@ -10,25 +10,20 @@ from yanr.viewer.viewer import Viewer, click_options
 
 
 class Comparator(Viewer):
-    def __init__(self, source: str, destination: str,
-                 dist_kwargs: Optional[Dict] = None) -> None:
+    def __init__(self, source, destination, dist_kwargs: Optional[Dict] = None):
         """Compare two embeddings
 
         Args:
-            source (str): url or path to file
-            destination (str): url or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
             dist_kwargs (dict, optional): keyword arguments of scipy cdist function
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.dist_kwargs = {} if dist_kwargs is None else dist_kwargs
 
-    def __call__(self) -> None:
-        """Compare
-
-        Returns: None
-        """
+    def __call__(self):
         s = self.load()
         source = self.source
         self.source = s['source']
@@ -76,7 +71,7 @@ class Comparator(Viewer):
             fig.update_layout(title=s['source2'], yaxis={'visible': False,
                                                          'showticklabels': False})
             fig.write_html(fp / 'vector2_vectors.html')
-        self.save({})
+        return self.save({})
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,

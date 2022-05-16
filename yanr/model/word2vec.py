@@ -7,29 +7,24 @@ from yanr.model.model import Model, click_options
 
 
 class Word2vec(Model):
-    def __init__(self, model: str, source: str, destination: str,
-                 binary: bool = True) -> None:
+    def __init__(self, model: str, source, destination, binary: bool = True):
         """Word2vec model
 
         Args:
             model (str): path to word2vec model
-            source (str): url or path to file with word2vec encodings
-            destination (str): url or path to file with word2vec encodings
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
             binary (bool): is model binary?
             https://rusvectores.org/ru/models/
             https://github.com/RaRe-Technologies/gensim-data
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.model = model
         self.binary = binary
 
-    def __call__(self) -> None:
-        """Make text embeddings
-
-        Returns: None
-        """
+    def __call__(self):
         d = self.load()
         p = Path(self.model)
         m = KeyedVectors.load_word2vec_format(p, binary=self.binary)
@@ -38,7 +33,7 @@ class Word2vec(Model):
                                     for x in n['title_encoding']]
             n['text_embedding'] = [m.vectors[x].tolist() if x != -1 else None
                                    for x in n['text_encoding']]
-        self.save(d)
+        return self.save(d)
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,

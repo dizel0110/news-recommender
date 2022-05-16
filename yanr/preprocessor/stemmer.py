@@ -7,28 +7,24 @@ from yanr.preprocessor.preprocessor import Preprocessor, click_options
 
 
 class Stemmer(Preprocessor):
-    def __init__(self, source: str, destination: str, stemmer: str = 'PorterStemmer',
-                 stemmer_kwargs: Optional[Dict] = None) -> None:
+    def __init__(self, source, destination, stemmer: str = 'PorterStemmer',
+                 stemmer_kwargs: Optional[Dict] = None):
         """Stemmer
 
         Args:
-            source (str): url to database or path to file
-            destination (str): url to database or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
             stemmer (str): class name of the stemmer
                 (see https://www.nltk.org/api/nltk.stem.html)
             stemmer_kwargs (dict, optional): keyword arguments of stemmer
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.stemmer = stemmer
         self.stemmer_kwargs = {} if stemmer_kwargs is None else stemmer_kwargs
 
-    def __call__(self) -> None:
-        """Stem text
-
-        Returns: None
-        """
+    def __call__(self):
         d = self.load()
         s = getattr(stem, self.stemmer)(**self.stemmer_kwargs)
         fields = ['title', 'text']
@@ -37,7 +33,7 @@ class Stemmer(Preprocessor):
             for n in d['news']:
                 source_field = pf if pf in n else f
                 n[pf] = ' '.join(s.stem(x.strip()) for x in n[source_field].split())
-        self.save(d)
+        return self.save(d)
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,

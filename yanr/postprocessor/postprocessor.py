@@ -5,14 +5,14 @@ from yanr.base.base import click_options as base_options
 
 
 class Postprocessor(Base):
-    def __init__(self, source: str, destination: str) -> None:
+    def __init__(self, source, destination):
         """Base class for postprocessors
 
         Args:
-            source (str): url or path to file
-            destination (str): url or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
 

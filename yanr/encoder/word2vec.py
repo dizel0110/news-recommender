@@ -7,29 +7,24 @@ from yanr.encoder.encoder import Encoder, click_options
 
 
 class Word2vec(Encoder):
-    def __init__(self, model: str, source: str, destination: str,
-                 binary: bool = True) -> None:
+    def __init__(self, model: str, source, destination, binary: bool = True):
         """Word2vec encoder
 
         Args:
             model (str): path to word2vec model
-            source (str): url to database or path to file
-            destination (str): url to database or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
             binary (bool): is model binary?
             https://rusvectores.org/ru/models/
             https://github.com/RaRe-Technologies/gensim-data
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.model = model
         self.binary = binary
 
-    def __call__(self) -> None:
-        """Make text encodings
-
-        Returns: None
-        """
+    def __call__(self):
         d = self.load()
         p = Path(self.model)
         m = KeyedVectors.load_word2vec_format(p, binary=self.binary)
@@ -38,7 +33,7 @@ class Word2vec(Encoder):
                                    for x in n['preprocessed_title'].split()]
             n['text_encoding'] = [m.key_to_index.get(x.strip(), -1)
                                   for x in n['preprocessed_text'].split()]
-        self.save(d)
+        return self.save(d)
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,
