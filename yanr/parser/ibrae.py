@@ -1,5 +1,4 @@
 import copy
-import requests
 import urllib
 
 import click
@@ -41,7 +40,6 @@ class Ibrae(Parser):
         source_code = url.read()
         soup = BeautifulSoup(source_code, "html.parser")
 
-
         hrefs = []
 
         for headlines in soup.find_all("a", href=True):
@@ -80,9 +78,7 @@ class Ibrae(Parser):
                  'text': list_values[x],
                  'datetime': None,
                  'tags': None,
-                 'url':list_keys[x]}]
-
-
+                 'url': list_keys[x]}]
 
         self.save(d)
 
