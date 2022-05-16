@@ -1,5 +1,5 @@
 import copy
-import urllib.request as url_request
+import urllib
 
 import click
 from bs4 import BeautifulSoup
@@ -31,14 +31,15 @@ class Ibrae(Parser):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
                           "AppleWebKit/537.36 (KHTML, like Gecko)"
         }
-        req = url_request.Request(self.source, headers=headers)
+        news_dict = {}
+        req = urllib.request.Request(self.source, headers=headers)
         # open the url
-        url = url_request.urlopen(req)
+        url = urllib.request.urlopen(req)
+        news_dict['status'] = url.getcode()
         # get the source code
         source_code = url.read()
         soup = BeautifulSoup(source_code, "html.parser")
 
-        news_dict = {}
         hrefs = []
 
         for headlines in soup.find_all("a", href=True):
@@ -54,8 +55,8 @@ class Ibrae(Parser):
             url_list.append("http://www.ibrae.ac.ru" + link)
 
         for url_it in url_list:
-            req = url_request.Request(url_it, headers=headers)
-            url = url_request.urlopen(req)
+            req = urllib.request.Request(url_it, headers=headers)
+            url = urllib.request.urlopen(req)
             source_code = url.read()
             soup = BeautifulSoup(source_code, "html.parser")
 
@@ -66,8 +67,19 @@ class Ibrae(Parser):
 
             news_dict.update({url_it: current_news})
 
-        d = news_dict
+        d = {}
         # print(d)
+        list_keys = list(news_dict.keys())
+        list_values = list(news_dict.values())
+        d['status'] = news_dict['status']
+        for x in range(len(list_keys)):
+            d['news'] = [
+                {'title': None,
+                 'text': list_values[x],
+                 'datetime': None,
+                 'tags': None,
+                 'url': list_keys[x]}]
+
         self.save(d)
 
 
