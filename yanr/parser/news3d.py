@@ -8,16 +8,14 @@ from yanr.parser.parser import Parser, click_options
 
 
 class News3d(Parser):
-    def __init__(self,
-                 source: str = "https://3dnews.ru/news/rss/",
-                 destination: str = "news3d.json") -> None:
+    def __init__(self, source="https://3dnews.ru/news/rss/", destination="news3d.json"):
         """Parse 3DNews RSS
 
         Args:
-            source (str): url
-            destination (str): url to database or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
 
@@ -38,13 +36,9 @@ class News3d(Parser):
         return d
 
     def __call__(self) -> None:
-        """Parse source and save data to storage
-
-        Returns: None
-        """
         d = self.load()
         d = self.process(d)
-        self.save(d)
+        return self.save(d)
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,

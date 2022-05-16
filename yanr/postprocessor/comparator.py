@@ -8,14 +8,14 @@ from yanr.postprocessor.postprocessor import Postprocessor, click_options
 
 
 class Comparator(Postprocessor):
-    def __init__(self, source: str, destination: str, source2: str,
-                 dist_kwargs: Optional[Dict] = None) -> None:
+    def __init__(self, source, destination, source2,
+                 dist_kwargs: Optional[Dict] = None):
         """Compare two embeddings
 
         Args:
-            source (str): url or path to file
-            destination (str): url or path to file
-            source2 (str): url or path to file to compare with source
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
+            source2 (str): url/path, dict or None
             dist_kwargs (dict, optional): keyword arguments of scipy cdist function
 
         Returns: None
@@ -24,11 +24,7 @@ class Comparator(Postprocessor):
         self.source2 = source2
         self.dist_kwargs = {} if dist_kwargs is None else dist_kwargs
 
-    def __call__(self) -> None:
-        """Compare
-
-        Returns: None
-        """
+    def __call__(self):
         d = {'source': self.source, 'source2': self.source2}
         s = self.load()
         source = self.source
@@ -37,7 +33,7 @@ class Comparator(Postprocessor):
         self.source = source
         self.compare(d, s, s2, 'title_embedding')
         self.compare(d, s, s2, 'text_embedding')
-        self.save(d)
+        return self.save(d)
 
     def compare(self, dst, src, src2, field):
         dst[field] = {}

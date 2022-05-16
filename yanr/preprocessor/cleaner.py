@@ -6,24 +6,20 @@ from yanr.preprocessor.preprocessor import Preprocessor, click_options
 
 
 class Cleaner(Preprocessor):
-    def __init__(self, source: str, destination: str, punctuation: bool = True) -> None:
+    def __init__(self, source, destination, punctuation: bool = True):
         """Text cleaner
 
         Args:
-            source (str): url or path to file
-            destination (str): url or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
             punctuation (bool): remove punctuation
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.punctuation = punctuation
 
-    def __call__(self) -> None:
-        """Clean text
-
-        Returns: None
-        """
+    def __call__(self):
         d = self.load()
         fields = ['title', 'text']
         preprocessed_fields = [f'preprocessed_{x}' for x in fields]
@@ -33,7 +29,7 @@ class Cleaner(Preprocessor):
                 if self.punctuation:
                     n[pf] = n[source_field].translate(
                         str.maketrans('', '', string.punctuation))
-        self.save(d)
+        return self.save(d)
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,

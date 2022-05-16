@@ -11,14 +11,14 @@ from yanr.parser.parser import Parser, click_options
 class WorldNuclear(Parser):
     def __init__(self,
                  source: str = "https://world-nuclear.org/",
-                 destination: str = "world-nuclear.json") -> None:
+                 destination: str = "world-nuclear.json"):
         """Parse latest publications on world-nuclear.org
 
         Args:
-            source (str): url
-            destination (str): url to database or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.headers = {
@@ -26,13 +26,9 @@ class WorldNuclear(Parser):
                           "AppleWebKit/537.36 (KHTML, like Gecko)"
         }
 
-    def __call__(self) -> None:
-        """Parse source and save data to storage
-
-        Returns: None
-        """
+    def __call__(self):
         world_nuclear_data = self.get_data()
-        self.save(world_nuclear_data)
+        return self.save(world_nuclear_data)
 
     def get_data(self) -> Dict:
         """Parse all data from the site

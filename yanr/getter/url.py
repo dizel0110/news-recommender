@@ -14,7 +14,7 @@ from yanr.getter.getter import Getter, click_options
 
 class Url(Getter):
     def __init__(self, source: str, destination: str, mode: str = 'urllib',
-                 unpack: bool = True) -> None:
+                 unpack: bool = True):
         """Get data from url
 
         Args:
@@ -29,11 +29,7 @@ class Url(Getter):
         self.mode = mode
         self.unpack = unpack
 
-    def __call__(self) -> None:
-        """Load data from source and save to destination
-
-        Returns: None
-        """
+    def __call__(self):
         try:
             source_path = Path(self.source).resolve()
             is_local = source_path.exists()

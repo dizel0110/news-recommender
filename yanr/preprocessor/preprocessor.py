@@ -9,10 +9,10 @@ class Preprocessor(Base):
         """Base class for preprocessors
 
         Args:
-            source (str): url or path to file
-            destination (str): url or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
 

@@ -7,26 +7,21 @@ from yanr.preprocessor.preprocessor import Preprocessor, click_options
 
 
 class Morpher(Preprocessor):
-    def __init__(self, source: str, destination: str,
-                 morpher_kwargs: Optional[Dict] = None) -> None:
+    def __init__(self, source, destination, morpher_kwargs: Optional[Dict] = None):
         """Morpher analyzer
 
         Args:
-            source (str): url or path to file
-            destination (str): url or path to file
+            source (str or dict or None): url/path, dict or None
+            destination (str or dict or None): url/path, dict or None
             morpher_kwargs (dict, optional): keyword arguments of MorphAnalyzer
                 (see https://pymorphy2.readthedocs.io/en/stable/misc/api_reference.html)
 
-        Returns: None
+        Returns: dict or None
         """
         super().__init__(source=source, destination=destination)
         self.morpher_kwargs = {} if morpher_kwargs is None else morpher_kwargs
 
-    def __call__(self) -> None:
-        """Lemmatize and add universal POS tag to words
-
-        Returns: None
-        """
+    def __call__(self):
         d = self.load()
         m = pymorphy2.MorphAnalyzer(**self.morpher_kwargs)
         fields = ['title', 'text']
@@ -37,7 +32,7 @@ class Morpher(Preprocessor):
                 n[pf] = ' '.join(
                     f'{x.normal_form}_{x.tag.POS}'
                     for x in [m.parse(y.strip())[0] for y in n[source_field].split()])
-        self.save(d)
+        return self.save(d)
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,
