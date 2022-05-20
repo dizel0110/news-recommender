@@ -105,7 +105,7 @@ class Parser:
 
 num_workers = cfg.get('num_workers', 1)
 print(f'num_workers: {num_workers}')
-feeds = cfg['feeds']
+feeds = [k for k, v in cfg['feeds'].items() if v]
 print(f'feeds: {len(feeds)}')
 pprint(feeds)
 
