@@ -44,7 +44,6 @@ class Habr(Parser):
             aritcles_items = soup.find_all(
                 "article", {"class": "tm-articles-list__item"}
             )
-
             for article_item in aritcles_items:
                 item_dict = self.process_article_tag(article_item)
 
@@ -68,10 +67,14 @@ class Habr(Parser):
 
         article_dict = {}
 
-        # get url
-        article_rel_url = article_tag.find(
+        result = article_tag.find(
             "a", {"class": "tm-article-snippet__title-link"}
-        )["href"]
+        )
+        if result is None:
+            return article_dict
+
+        # get url
+        article_rel_url = result["href"]
         article_dict["url"] = f"https://habr.com{article_rel_url}"
 
         # get title

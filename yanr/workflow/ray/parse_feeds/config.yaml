@@ -107,7 +107,7 @@ feeds:
   https://coinrevolution.com/feed/: Yes
   https://coinchapter.com/feed: Yes
   https://www.dcforecasts.com/feed/: Yes
-  https://bitrss.com/rss.xml: Yes
+  https://bitrss.com/rss.xml: No  # It posts news too often which leads to duplication
   https://skyytracker.com/blog/feed/: Yes
   https://www.crypto-news.net/feed/: Yes
   https://www.cryptocurrencyguide.org/feed/: Yes
