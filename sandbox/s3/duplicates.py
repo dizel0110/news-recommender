@@ -27,27 +27,38 @@ def get_data(do_download_news, max_news, do_update_csv):
         while p is not None:
             if max_news is not None and len(news) == max_news:
                 p = None
+                continue
             else:
                 with open(p) as f:
                     n = json.load(f)
                     n['key'] = 'news/' + Path(p).name
-                    n['published'] = time.strftime('%Y-%m-%dT%H:%M:%SZ',
-                                                   tuple(n['published_parsed']))
+                    published_parsed = n.get('published_parsed', None)
+                    if published_parsed is not None:
+                        published_parsed = time.strftime(
+                            '%Y-%m-%dT%H:%M:%SZ', tuple(published_parsed))
+                    n['published_parsed'] = published_parsed
                     news.append(n)
+            print(f'{len(news)}')
             p = next(news_paths, None)
         df = pd.DataFrame(news)
-        df['published'] = pd.to_datetime(df['published'])
+        df['published_parsed'] = pd.to_datetime(df['published_parsed'])
         df.to_csv(csv_path)
     else:
         df = pd.read_csv(csv_path)
     return df
 
 
+def find_duplicates(df, columns, flts):
+    for f in flts:
+        df = df[df.apply(f, axis=1)]
+    return df.groupby(columns)
+
+
 def remove_duplicates(groups, aws_access_key_id, aws_secret_access_key):
     to_remove = set()
     if do_remove_duplicates:
         for item, count in groups.size().iteritems():
-            g = groups.get_group(item).sort_values(by='published')
+            g = groups.get_group(item).sort_values(by='published_parsed')
             rows = g.iterrows()
             for _ in range(count - 1):
                 i, r = next(rows)
@@ -57,7 +68,6 @@ def remove_duplicates(groups, aws_access_key_id, aws_secret_access_key):
     print(f'{len(to_remove)} objects to remove')
     if len(to_remove) != 0:
         not_removed = {}
-        # to_remove = [{'Key': x} for x in to_remove]
         cnt = 0
         for key in to_remove:
             cnt += 1
@@ -88,48 +98,53 @@ def remove_duplicates(groups, aws_access_key_id, aws_secret_access_key):
 
 def plot_duplicates(groups):
     sizes = groups.size()
-    print(sizes.mean())
-    print(sizes.max())
-    print(sizes.min())
-    hostnames = set()
+    print(f'Instances by one news (min, max, mean, median): '
+          f'{sizes.min()} {sizes.max()} {sizes.mean()} {sizes.median()}')
+    hostnames = {}
     for item, count in sizes.iteritems():
         if count > 1:
             o = groups.get_group(item)['link']
             o = urlparse(o.values[0])
-            hostnames.add(o.hostname)
-    print(f'hostnames with duplicated news')
+            h = hostnames.setdefault(o.hostname, {'news': 0, 'instances': 0})
+            h['news'] += 1
+            h['instances'] += count
+    print(f'Hostnames')
     pprint(hostnames)
     fig = px.histogram(
         sizes.sort_values().astype('str'),
         text_auto=True,
         title=f'{len(groups)}/{len(df)} unique/total news<br>'
-              f'~{len(df) / len(groups):.2f} duplicates by news<br>'
+              f'~{len(df) / len(groups):.2f} instances by one news<br>'
               f'~{len(groups) / len(df) * 100:.2f}% unique news')
     fig.update_layout(
-        xaxis_title="number of duplicates",
+        xaxis_title="number of instances",
         yaxis_title="number of news",
         bargap=0.2, title_x=0.5, showlegend=False)
     fig.write_html('duplicates.html')
 
 
 if __name__ == '__main__':
-    columns = ['link']  # Columns to find duplicates
+    columns = ['link', 'title', 'summary']  # Columns to find duplicates
+    flts = []  # Row filters (should return True or False)
+    # flts = [lambda x: 'bitrss.com' in x['link']]
     do_download_news = False  # Download news from S3
-    max_news = 3000  # Number of news to download. None - all news
-    do_update_csv = True  # Update intermediate CSV file
-    do_remove_duplicates = True  # Remove duplicates from S3. Use carefully!
+    max_news = None  # Number of news to download. None - all news
+    do_update_csv = False  # Update intermediate CSV file
+    do_plot_duplicates = True  # Plot duplicates to html histogram
+    do_remove_duplicates = False  # Remove duplicates from S3. Use carefully!
     aws_access_key_id = None  # If None using env variable
     aws_secret_access_key = None  # If None using env variable
-    # Print args
+    # Print some args
     print(f'columns: {columns}')
     print(f'max_news: {max_news}')
     # Get data
     df = get_data(do_download_news, max_news, do_update_csv)
     # Find duplicates
-    groups = df.groupby(columns)
+    groups = find_duplicates(df, columns, flts)
     print(f'{len(groups)}/{len(df)} - unique/total news')
     # Plot duplicates
-    plot_duplicates(groups)
+    if do_plot_duplicates:
+        plot_duplicates(groups)
     # Remove duplicates
     if do_remove_duplicates:
         remove_duplicates(groups, aws_access_key_id, aws_secret_access_key)
