@@ -1,3 +1,3 @@
 ['remote "yandex"']
-    url = s3://yanr
+    url = s3://yanr-dvc
     endpointurl = https://storage.yandexcloud.net
