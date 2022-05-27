@@ -1,0 +1,80 @@
+stages:
+  preprocess:
+    cmd: >
+      python preprocess.py -k ${dataset_kind} -i ${dataset_path} -o ${processed_path} 
+      --coins-path ${coins_path} 
+      --leave-coins-uppercase ${leave_coins_uppercase}
+      --remove-punctuation ${remove_punctuation} 
+      --remove-non-alnum ${remove_non_alnum}
+      --remove-stopwords ${remove_stopwords}
+      --lemmatize ${lemmatize}
+      --min-sentence-length ${min_sentence_length}
+      --min-word-length ${min_word_length}
+    params:
+      - dataset_kind
+      - dataset_path
+      - processed_path
+      - coins_path
+      - leave_coins_uppercase
+      - remove_punctuation
+      - remove_non_alnum
+      - remove_stopwords
+      - lemmatize
+      - min_sentence_length
+      - min_word_length
+    deps:
+      - ${dataset_path}
+      - ${coins_path}
+    outs:
+      - ${processed_path}
+
+  train:
+    cmd: >
+      python train.py -i ${processed_path} -o ${model_path} -m ${metrics_path}
+      --vector-size ${vector_size}
+      --alpha ${alpha}
+      --window ${window}
+      --min-count ${min_count}
+      --max-vocab-size ${max_vocab_size}
+      --sample ${sample}
+      --seed ${seed}
+      --workers ${workers}
+      --min-alpha ${min_alpha}
+      --sg ${sg}
+      --hs ${hs}
+      --negative ${negative}
+      --ns-exponent ${ns_exponent}
+      --cbow-mean ${cbow_mean}
+      --epochs ${epochs}
+      --batch-words ${batch_words}
+      --max-final-vocab ${max_final_vocab}
+      --shrink-windows ${shrink_windows}
+    params:
+      - processed_path
+      - model_path
+      - metrics_path
+      - vector_size
+      - alpha
+      - window
+      - min_count
+      - max_vocab_size
+      - sample
+      - seed
+      - workers
+      - min_alpha
+      - sg
+      - hs
+      - negative
+      - ns_exponent
+      - cbow_mean
+      - epochs
+      - batch_words
+      - max_final_vocab
+      - shrink_windows
+    deps:
+      - ${processed_path}
+    outs:
+      - ${model_path}
+    metrics:
+      - ${metrics_path}:
+          cache: false
