@@ -1,0 +1,9 @@
+kind: yanr
+raw_path: data/raw/yanr_10k.csv
+processed_path: data/processed/yanr_10k.txt
+map_path: data/processed/yanr_10k_map.txt
+model_path: models/word2vec.bin.gz
+output_path: reports/models/test.csv
+metrics_path: reports/models/test_metrics.json
+seed: 42
+top_n: 20
