@@ -28,8 +28,8 @@ class Preprocessor:
             words_lengths_path='reports/data/processed/words_lengths.csv',
             sentences_lengths_path='reports/data/processed/sentences_lengths.csv',
             remove_punctuation=True, remove_non_alnum=True, leave_coins_uppercase=True,
-            lemmatize=True, remove_stopwords=True, min_word_length=2,
-            min_sentence_length=2, stopwords=(), lemmatizer='WordNetLemmatizer'):
+            normalize=True, remove_stopwords=True, min_word_length=2,
+            min_sentence_length=2, stopwords=(), normalizer='WordNetLemmatizer'):
         self.kind = kind
         self.raw_path = raw_path
         self.processed_path = processed_path
@@ -42,19 +42,19 @@ class Preprocessor:
         self.remove_punctuation = remove_punctuation
         self.remove_non_alnum = remove_non_alnum
         self.leave_coins_uppercase = leave_coins_uppercase
-        self.lemmatize = lemmatize
+        self.normalize = normalize
         self.remove_stopwords = remove_stopwords
         self.min_word_length = min_word_length
         self.min_sentence_length = min_sentence_length
-        self.lemmatizer = lemmatizer
+        self.normalizer = normalizer
         self.stopwords = stopwords
 
     def __call__(self):
         start_time = time.perf_counter()
-        if self.lemmatizer == 'WordNetLemmatizer':
+        if self.normalizer == 'WordNetLemmatizer':
             lemmatizer = WordNetLemmatizer()
         else:
-            raise NotImplementedError(self.lemmatizer)
+            raise NotImplementedError(self.normalizer)
         stopwords = set(self.stopwords)
         stopwords.update(nltk_stopwords.words('russian'))
         stopwords.update(nltk_stopwords.words('english'))
@@ -68,52 +68,50 @@ class Preprocessor:
         if self.kind == 'yanr':
             df = pd.read_csv(self.raw_path)
             cols = ['title', 'summary']
+            docs = [[x[y] for y in cols] for _, x in df.iterrows()]
+        elif self.kind == 'list':  # [[text, text], [text], ...]
+            docs = self.raw_path
         else:
             raise NotImplementedError(self.kind)
-        pp = Path(self.processed_path)
-        pp.parent.mkdir(exist_ok=True, parents=True)
-        pm = Path(self.map_path)
-        pm.parent.mkdir(exist_ok=True, parents=True)
-        sentences_lengths, words_lengths, words = [], [], []
-        cnt, err, j = 0, 0, 0
-        with open(pp, 'w', encoding="utf-8") as fp, open(pm, 'w') as fm:
-            for i, row in df.iterrows():
-                for c in cols:
-                    cnt += 1
-                    t = row[c]
-                    print(f'{i + 1}/{len(df)} {c} {t}')
-                    try:
-                        t = BeautifulSoup(t, features="lxml").get_text()
-                    except Exception as e:
-                        err += 1
-                        print(e)
-                        continue
-                    ss = [word_tokenize(x) for x in sent_tokenize(t)]
-                    if self.remove_punctuation:
-                        ss = [[y for y in x if y not in string.punctuation] for x in ss]
-                    if self.remove_non_alnum:
-                        ss = [[y for y in x if y.isalnum()] for x in ss]
-                    if not self.leave_coins_uppercase:
-                        ss = [[y.lower() for y in x] for x in ss]
-                    else:
-                        ss = [[y.lower() if y not in names else y for y in x] for x
-                              in ss]
-                    if self.lemmatize:
-                        ss = [[lemmatizer.lemmatize(y) for y in x] for x in ss]
-                    if self.remove_stopwords:
-                        ss = [[y for y in x if y not in stopwords or y in names]
-                              for x in ss]
-                    for s in ss:
-                        ws = [x for x in s if len(x) >= self.min_word_length]
-                        if len(ws) >= self.min_sentence_length:
-                            if not ' '.join(ws).isspace():
-                                sentences_lengths.append(len(ws))
-                                for w in ws:
-                                    words_lengths.append(len(w))
-                                    words.append(w)
-                                fp.write(' '.join(ws) + '\n')
-                                fm.write(f'{i} {j}\n')
-                                j += 1
+        words, words_lengths, sentences, sentences_lengths, = [], [], [], []
+        cnt, err = 0, 0
+        for i, d in enumerate(docs):  # document in library
+            sentences.append([])
+            for j, t in enumerate(d):  # text in document
+                sentences[i].append([])
+                cnt += 1
+                print(f'{cnt} {i + 1}/{len(docs)} {j + 1}/{len(d)} {t}')
+                try:
+                    t = BeautifulSoup(t, features="lxml").get_text()
+                except Exception as e:
+                    err += 1
+                    sentences[i][j].append([])
+                    print(e)
+                    continue
+                ss = [word_tokenize(x) for x in sent_tokenize(t)]  # sentences in text
+                if self.remove_punctuation:
+                    ss = [[y for y in x if y not in string.punctuation] for x in ss]
+                if self.remove_non_alnum:
+                    ss = [[y for y in x if y.isalnum()] for x in ss]
+                if not self.leave_coins_uppercase:
+                    ss = [[y.lower() for y in x] for x in ss]
+                else:
+                    ss = [[y.lower() if y not in names else y for y in x] for x
+                          in ss]
+                if self.normalize:
+                    ss = [[lemmatizer.lemmatize(y) for y in x] for x in ss]
+                if self.remove_stopwords:
+                    ss = [[y for y in x if y not in stopwords or y in names]
+                          for x in ss]
+                for s in ss:
+                    ws = [x for x in s if len(x) >= self.min_word_length]
+                    if len(ws) >= self.min_sentence_length:
+                        if not ' '.join(ws).isspace():
+                            sentences[i][j].append(ws)
+                            sentences_lengths.append(len(ws))
+                            for w in ws:
+                                words_lengths.append(len(w))
+                                words.append(w)
         report = {}
         for n, n2, p, a in [('words', 'count', self.words_path, words),
                             ('sentences', 'length',
@@ -136,20 +134,36 @@ class Preprocessor:
             d['q25'] = np.quantile(vs, 0.25)
             d['q75'] = np.quantile(vs, 0.75)
             d['q95'] = np.quantile(vs, 0.95)
-            p = Path(p)
-            p.parent.mkdir(exist_ok=True, parents=True)
-            df = pd.DataFrame(mc, columns=["item", "count"])
-            df.to_csv(p, index=False)
-        pprint(report)
-        report_path = Path(self.report_path)
-        report_path.parent.mkdir(exist_ok=True, parents=True)
+            if p is not None:
+                p = Path(p)
+                p.parent.mkdir(exist_ok=True, parents=True)
+                df = pd.DataFrame(mc, columns=["item", "count"])
+                df.to_csv(p, index=False)
         report['time'] = time.perf_counter() - start_time
         r = report.setdefault('texts', {})
         r['total'] = cnt
         r['errors'] = err
         r['processed'] = cnt - err
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=2)
+        pprint(report)
+        if self.report_path is not None:
+            report_path = Path(self.report_path)
+            report_path.parent.mkdir(exist_ok=True, parents=True)
+            with open(report_path, 'w') as f:
+                json.dump(report, f, indent=2)
+        if self.processed_path is not None and self.map_path is not None:
+            pp = Path(self.processed_path)
+            pp.parent.mkdir(exist_ok=True, parents=True)
+            pm = Path(self.map_path)
+            pm.parent.mkdir(exist_ok=True, parents=True)
+            with open(pp, 'w', encoding="utf-8") as fp, open(pm, 'w') as fm:
+                for i, d in enumerate(sentences):  # document in library
+                    for j, t in enumerate(d):  # text in document
+                        for k, s in enumerate(t):  # sentence in text
+                            if len(s) != 0:
+                                fp.write(' '.join(s) + '\n')
+                                fm.write(f'{i} {j} {k}\n')
+        else:
+            return sentences
 
 
 if __name__ == '__main__':
