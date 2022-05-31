@@ -47,8 +47,6 @@ stages:
       - params_test.yaml:
     deps:
       - ${raw_path}
-      - ${processed_path}
-      - ${map_path}
       - ${model_path}
     outs:
       - ${output_path}

@@ -10,9 +10,9 @@ sentences_lengths_path: reports/data/processed/sentences_lengths.csv
 remove_punctuation: True
 remove_non_alnum: True
 leave_coins_uppercase: True
-lemmatize: True
+normalize: True
 remove_stopwords: True
 min_word_length: 2
 min_sentence_length: 2
 stopwords: []
-lemmatizer: WordNetLemmatizer
+normalizer: WordNetLemmatizer

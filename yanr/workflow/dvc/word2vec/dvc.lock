@@ -14,11 +14,11 @@ stages:
         coins_path: data/external/coins.json
         kind: yanr
         leave_coins_uppercase: true
-        lemmatize: true
-        lemmatizer: WordNetLemmatizer
         map_path: data/processed/yanr_10k_map.txt
         min_sentence_length: 2
         min_word_length: 2
+        normalize: true
+        normalizer: WordNetLemmatizer
         processed_path: data/processed/yanr_10k.txt
         raw_path: data/raw/yanr_10k.csv
         remove_non_alnum: true
@@ -34,11 +34,11 @@ stages:
       md5: baf0d59f25fcb981a2f0fb1ff1b4314b
       size: 4067453
     - path: data/processed/yanr_10k_map.txt
-      md5: 1411428170366980db5987ada43d017a
-      size: 546482
+      md5: a72491cc4ac9812db6b4344c123c9d89
+      size: 473481
     - path: reports/data/processed/report.json
-      md5: 3574473da615bbb7f6f556ae6cb1f5b3
-      size: 910
+      md5: f1d238bc384746e5cb2d5e2e612c243a
+      size: 994
     - path: reports/data/processed/sentences_lengths.csv
       md5: 622a9c27a42dcc1cddf36ef82ceb8825
       size: 1004
@@ -92,12 +92,6 @@ stages:
   test:
     cmd: python test.py params_test.yaml
     deps:
-    - path: data/processed/yanr_10k.txt
-      md5: baf0d59f25fcb981a2f0fb1ff1b4314b
-      size: 4067453
-    - path: data/processed/yanr_10k_map.txt
-      md5: 1411428170366980db5987ada43d017a
-      size: 546482
     - path: data/raw/yanr_10k.csv
       md5: f8efd2817efefc21c7155b1e792133e9
       size: 56989858
@@ -107,18 +101,17 @@ stages:
     params:
       params_test.yaml:
         kind: yanr
-        map_path: data/processed/yanr_10k_map.txt
         metrics_path: reports/models/test_metrics.json
         model_path: models/word2vec.bin.gz
         output_path: reports/models/test.csv
-        processed_path: data/processed/yanr_10k.txt
+        preprocessor_params: params_preprocess.yaml
         raw_path: data/raw/yanr_10k.csv
         seed: 42
         top_n: 20
     outs:
     - path: reports/models/test.csv
-      md5: e8fa90b3df80c45cd2b50f903a0a2fd8
-      size: 455
+      md5: a921876daec68fe9ec77f7267160bef3
+      size: 464
     - path: reports/models/test_metrics.json
-      md5: 0db33c4123dd4bc0072a16df7ea94ef7
-      size: 104
+      md5: 4846b940924d8c68dcda5a96686de4b1
+      size: 59
