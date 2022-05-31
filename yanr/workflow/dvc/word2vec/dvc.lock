@@ -1,0 +1,124 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python preprocess.py params_preprocess.yaml
+    deps:
+    - path: data/external/coins.json
+      md5: a025666c1d6b69dca7abda489e5f4527
+      size: 10727790
+    - path: data/raw/yanr_10k.csv
+      md5: f8efd2817efefc21c7155b1e792133e9
+      size: 56989858
+    params:
+      params_preprocess.yaml:
+        coins_path: data/external/coins.json
+        kind: yanr
+        leave_coins_uppercase: true
+        lemmatize: true
+        lemmatizer: WordNetLemmatizer
+        map_path: data/processed/yanr_10k_map.txt
+        min_sentence_length: 2
+        min_word_length: 2
+        processed_path: data/processed/yanr_10k.txt
+        raw_path: data/raw/yanr_10k.csv
+        remove_non_alnum: true
+        remove_punctuation: true
+        remove_stopwords: true
+        report_path: reports/data/processed/report.json
+        sentences_lengths_path: reports/data/processed/sentences_lengths.csv
+        stopwords: []
+        words_lengths_path: reports/data/processed/words_lengths.csv
+        words_path: reports/data/processed/words.csv
+    outs:
+    - path: data/processed/yanr_10k.txt
+      md5: baf0d59f25fcb981a2f0fb1ff1b4314b
+      size: 4067453
+    - path: data/processed/yanr_10k_map.txt
+      md5: 1411428170366980db5987ada43d017a
+      size: 546482
+    - path: reports/data/processed/report.json
+      md5: 3574473da615bbb7f6f556ae6cb1f5b3
+      size: 910
+    - path: reports/data/processed/sentences_lengths.csv
+      md5: 622a9c27a42dcc1cddf36ef82ceb8825
+      size: 1004
+    - path: reports/data/processed/words.csv
+      md5: 36aca5983f3f5d39808ad5e98b1a2f67
+      size: 334239
+    - path: reports/data/processed/words_lengths.csv
+      md5: 8ce05e2183ba096b5ca69909403413f9
+      size: 369
+  train:
+    cmd: python train.py params_train.yaml
+    deps:
+    - path: data/processed/yanr_10k.txt
+      md5: baf0d59f25fcb981a2f0fb1ff1b4314b
+      size: 4067453
+    params:
+      params_train.yaml:
+        alpha: 0.025
+        batch_words: 10000
+        cbow_mean: 1
+        epochs: 5
+        hs: 0
+        max_final_vocab:
+        max_vocab_size:
+        metrics_path: reports/models/train_metrics.json
+        min_alpha: 0.0001
+        min_count: 5
+        model_path:
+        negative: 5
+        ns_exponent: 0.75
+        output_path: models/word2vec.bin.gz
+        plots_path: reports/models/train_plots.csv
+        processed_path: data/processed/yanr_10k.txt
+        sample: 0.001
+        seed: 42
+        sg: 0
+        shrink_windows: true
+        vector_size: 100
+        window: 5
+        workers: 1
+    outs:
+    - path: models/word2vec.bin.gz
+      md5: b4d7f7ab3677a0a697ea09278afd7bb3
+      size: 6723506
+    - path: reports/models/train_metrics.json
+      md5: 67859d94a57c8bcf1001f4c21b8cf59f
+      size: 79
+    - path: reports/models/train_plots.csv
+      md5: 8a1ad7bd410c7cb1deeb6f1ca393ea7c
+      size: 181
+  test:
+    cmd: python test.py params_test.yaml
+    deps:
+    - path: data/processed/yanr_10k.txt
+      md5: baf0d59f25fcb981a2f0fb1ff1b4314b
+      size: 4067453
+    - path: data/processed/yanr_10k_map.txt
+      md5: 1411428170366980db5987ada43d017a
+      size: 546482
+    - path: data/raw/yanr_10k.csv
+      md5: f8efd2817efefc21c7155b1e792133e9
+      size: 56989858
+    - path: models/word2vec.bin.gz
+      md5: b4d7f7ab3677a0a697ea09278afd7bb3
+      size: 6723506
+    params:
+      params_test.yaml:
+        kind: yanr
+        map_path: data/processed/yanr_10k_map.txt
+        metrics_path: reports/models/test_metrics.json
+        model_path: models/word2vec.bin.gz
+        output_path: reports/models/test.csv
+        processed_path: data/processed/yanr_10k.txt
+        raw_path: data/raw/yanr_10k.csv
+        seed: 42
+        top_n: 20
+    outs:
+    - path: reports/models/test.csv
+      md5: e8fa90b3df80c45cd2b50f903a0a2fd8
+      size: 455
+    - path: reports/models/test_metrics.json
+      md5: 0db33c4123dd4bc0072a16df7ea94ef7
+      size: 104

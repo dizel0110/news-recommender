@@ -1,3 +1,5 @@
+[core]
+    remote = yandex
 ['remote "yandex"']
     url = s3://yanr-dvc
     endpointurl = https://storage.yandexcloud.net

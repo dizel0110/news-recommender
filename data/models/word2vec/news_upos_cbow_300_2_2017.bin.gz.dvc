@@ -1,4 +1,0 @@
-outs:
-- md5: c5b319b488699344a9bc5b451db5b64c
-  size: 140310878
-  path: news_upos_cbow_300_2_2017.bin.gz
