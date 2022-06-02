@@ -9,6 +9,7 @@ import yaml
 from gensim.models import Word2Vec
 from gensim.models.callbacks import CallbackAny2Vec
 import pandas as pd
+from mlflow import log_metric, log_params, log_artifact
 
 
 @dataclass
@@ -23,6 +24,8 @@ class Trainer:
             max_vocab_size=None, sample=1e-3, seed=1, workers=1, min_alpha=0.0001, sg=0,
             hs=0, negative=5, ns_exponent=0.75, cbow_mean=1, epochs=5,
             batch_words=10000, max_final_vocab=None, shrink_windows=True):
+        log_params({f'{self.__class__.__qualname__}.{k}': v
+                    for k, v in locals().items() if k != 'self'})
         self.processed_path = processed_path
         self.output_path = output_path
         self.metrics_path = metrics_path
@@ -135,7 +138,19 @@ class Logger(CallbackAny2Vec):
         pprint(metrics)
         with open(self.metrics_path, 'w') as f:
             json.dump(metrics, f, indent=2)
+
+        def log_metric_walk(d, n=''):
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    log_metric_walk(v, '.'.join([n, k]))
+                else:
+                    log_metric('.'.join([n, k]), v)
+
+        log_metric_walk(metrics, 'Trainer')
+
         model.save(str(self.output_path))
+
+        log_artifact(str(self.plots_path))
 
 
 if __name__ == '__main__':
