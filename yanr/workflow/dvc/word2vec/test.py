@@ -9,6 +9,7 @@ from gensim.models import Word2Vec
 import pandas as pd
 import numpy as np
 import yaml
+from mlflow import log_metric, log_params, log_artifact
 
 from preprocess import Preprocessor
 
@@ -24,6 +25,8 @@ class Tester:
             metrics_path='reports/models/test_metrics.json',
             seed=42,
             top_n=20):
+        log_params({f'{self.__class__.__qualname__}.{k}': v
+                    for k, v in locals().items() if k != 'self'})
         self.kind = kind
         self.raw_path = raw_path
         self.preprocessor_params = preprocessor_params
@@ -133,6 +136,9 @@ class Tester:
                                 emb = np.mean(vs, axis=0)
                         except (EOFError, KeyboardInterrupt):
                             print('Interrupted')
+                            for k, v in metrics.items():
+                                log_metric(f'{self.__class__.__qualname__}.{k}', v)
+                            log_artifact(str(self.output_path))
                             sys.exit(0)
                         except Exception:
                             print('Something went wrong... Try another (longer) text!')
@@ -161,6 +167,9 @@ class Tester:
                         print('Score should be float')
                     except (EOFError, KeyboardInterrupt):
                         print('Interrupted')
+                        for k, v in metrics.items():
+                            log_metric(f'{self.__class__.__qualname__}.{k}', v)
+                        log_artifact(str(self.output_path))
                         sys.exit(0)
                     else:
                         if 0 <= score <= 1 or score == -1:
@@ -196,6 +205,9 @@ class Tester:
                     json.dump(metrics, f)
         except (EOFError, KeyboardInterrupt):
             print('Interrupted')
+            for k, v in metrics.items():
+                log_metric(f'{self.__class__.__qualname__}.{k}', v)
+            log_artifact(str(self.output_path))
             sys.exit(0)
 
 

@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords as nltk_stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
+from mlflow import log_metric, log_params, log_artifact
 
 
 class Preprocessor:
@@ -30,6 +31,9 @@ class Preprocessor:
             remove_punctuation=True, remove_non_alnum=True, leave_coins_uppercase=True,
             normalize=True, remove_stopwords=True, min_word_length=2,
             min_sentence_length=2, stopwords=(), normalizer='WordNetLemmatizer'):
+        if isinstance(raw_path, str):  # CLI only
+            log_params({f'{self.__class__.__qualname__}.{k}': v
+                        for k, v in locals().items() if k != 'self'})
         self.kind = kind
         self.raw_path = raw_path
         self.processed_path = processed_path
@@ -139,6 +143,8 @@ class Preprocessor:
                 p.parent.mkdir(exist_ok=True, parents=True)
                 df = pd.DataFrame(mc, columns=["item", "count"])
                 df.to_csv(p, index=False)
+                if isinstance(self.raw_path, str):  # CLI only
+                    log_artifact(str(p))
         report['time'] = time.perf_counter() - start_time
         r = report.setdefault('texts', {})
         r['total'] = cnt
@@ -150,6 +156,17 @@ class Preprocessor:
             report_path.parent.mkdir(exist_ok=True, parents=True)
             with open(report_path, 'w') as f:
                 json.dump(report, f, indent=2)
+
+        def log_metric_walk(d, n=''):
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    log_metric_walk(v, '.'.join([n, k]))
+                else:
+                    log_metric('.'.join([n, k]), v)
+
+        if isinstance(self.raw_path, str):  # CLI only
+            log_metric_walk(report, self.__class__.__qualname__)
+
         if self.processed_path is not None and self.map_path is not None:
             pp = Path(self.processed_path)
             pp.parent.mkdir(exist_ok=True, parents=True)
