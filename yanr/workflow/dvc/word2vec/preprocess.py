@@ -5,6 +5,7 @@ from collections import Counter
 import time
 from pprint import pprint
 import sys
+import os
 
 import pandas as pd
 import numpy as np
@@ -13,7 +14,8 @@ from bs4 import BeautifulSoup
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords as nltk_stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
-from mlflow import log_metric, log_params, log_artifact
+from mlflow import log_metric, log_params, log_artifact, set_experiment
+from dotenv import load_dotenv
 
 
 class Preprocessor:
@@ -31,6 +33,8 @@ class Preprocessor:
             remove_punctuation=True, remove_non_alnum=True, leave_coins_uppercase=True,
             normalize=True, remove_stopwords=True, min_word_length=2,
             min_sentence_length=2, stopwords=(), normalizer='WordNetLemmatizer'):
+        load_dotenv()
+        set_experiment(os.environ.get('MLFLOW_EXPERIMENT_NAME'))
         if isinstance(raw_path, str):  # CLI only
             log_params({f'{self.__class__.__qualname__}.{k}': v
                         for k, v in locals().items() if k != 'self'})

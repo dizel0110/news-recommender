@@ -65,7 +65,7 @@ stages:
         max_vocab_size:
         metrics_path: reports/models/train_metrics.json
         min_alpha: 0.0001
-        min_count: 5
+        min_count: 2
         model_path:
         negative: 5
         ns_exponent: 0.75
@@ -81,14 +81,14 @@ stages:
         workers: 1
     outs:
     - path: models/word2vec.bin.gz
-      md5: b4d7f7ab3677a0a697ea09278afd7bb3
-      size: 6723506
+      md5: a5a9648eade7f51d413e262d60715798
+      size: 12078604
     - path: reports/models/train_metrics.json
-      md5: 67859d94a57c8bcf1001f4c21b8cf59f
-      size: 79
+      md5: b913d34252d67dab59b85501b82a3f69
+      size: 82
     - path: reports/models/train_plots.csv
-      md5: 8a1ad7bd410c7cb1deeb6f1ca393ea7c
-      size: 181
+      md5: 2fdc9ed5294d6c7dc554b8191d3379e5
+      size: 191
   test:
     cmd: python test.py params_test.yaml
     deps:
@@ -96,8 +96,8 @@ stages:
       md5: f8efd2817efefc21c7155b1e792133e9
       size: 56989858
     - path: models/word2vec.bin.gz
-      md5: b4d7f7ab3677a0a697ea09278afd7bb3
-      size: 6723506
+      md5: a5a9648eade7f51d413e262d60715798
+      size: 12078604
     params:
       params_test.yaml:
         kind: yanr
@@ -110,8 +110,8 @@ stages:
         top_n: 20
     outs:
     - path: reports/models/test.csv
-      md5: a921876daec68fe9ec77f7267160bef3
-      size: 464
+      md5: 746c65740daf98518a8a58ccd7a1278f
+      size: 732
     - path: reports/models/test_metrics.json
-      md5: 4846b940924d8c68dcda5a96686de4b1
-      size: 59
+      md5: 5b8e380f3cebf501a56b8d41a6c3460a
+      size: 89

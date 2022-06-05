@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+
+#  minio:
+#    container_name: minio
+#    hostname: minio
+#    image: quay.io/minio/minio:RELEASE.2022-05-08T23-50-31Z
+#    command: server --console-address ":9001" /data/
+#    expose:
+#      - "9000"
+#      - "9001"
+#    networks:
+#      - s3      
+#    environment:
+#      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}        
+#      MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+#      interval: 30s
+#      timeout: 20s
+#      retries: 3
+#    volumes:
+#      - ./Docker/minio/:/data
+
+  db:
+    container_name: postgres_container
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+       - postgres-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    networks:
+      - backend_network
+      
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+       - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - backend_network
+      
+  mlflow:
+    restart: always
+    build: ./mlflow
+    image: mlflow
+    container_name: mlflow_container
+    expose:
+      - "5000"
+    networks:
+      - backend_network
+      - frontend_network
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - MLFLOW_S3_ENDPOINT_URL=${MLFLOW_S3_ENDPOINT_URL}
+    # command: mlflow server --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB} --default-artifact-root s3://${AWS_S3_BUCKET} --host 0.0.0.0
+    command: mlflow server --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB} --artifacts-destination s3://${AWS_S3_BUCKET} --serve-artifacts --host 0.0.0.0
+
+  nginx:
+    restart: always
+    build: ./nginx
+    container_name: nginx_container
+    hostname: nginx
+    ports:
+       - "8080:8080"
+    networks:
+      - frontend_network
+    depends_on:
+      - mlflow
+
+#  app:
+#    image: model_service
+#    container_name: model_service
+#    ports:
+#      - "8003:80"
+#    networks:
+#      - s3
+#    environment:
+#      - MLFLOW_TRACKING_URI=http://mlflow:5000
+#      - MLFLOW_S3_ENDPOINT_URL=http://nginx:9000
+
+#  nexus:
+#    image: sonatype/nexus3:latest
+#    container_name: nexus
+#    ports:
+#      - "8081:8081"
+#      - "8123:8123"
+#    volumes:
+#      - nexus:/nexus-data
+
+#  gitlab-runner:
+#    image: gitlab/gitlab-runner:latest
+#    container_name: gitlab-runner
+#    user: root
+#    ports:
+#      - "8093:8093"
+#    volumes:
+#      - ./Docker/gitlab/var/run/docker.sock:/var/run/docker.sock
+#      - ./Docker/gitlab/config:/etc/gitlab-runner
+#    restart: unless-stopped
+
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
+    
+volumes:
+  postgres-data:
+  pgadmin-data:
+#  nexus:
