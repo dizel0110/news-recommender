@@ -4,12 +4,14 @@ from datetime import datetime
 import sys
 import uuid
 from pprint import pprint
+import os
 
 from gensim.models import Word2Vec
 import pandas as pd
 import numpy as np
 import yaml
-from mlflow import log_metric, log_params, log_artifact
+from mlflow import log_metric, log_params, log_artifact, set_experiment
+from dotenv import load_dotenv
 
 from preprocess import Preprocessor
 
@@ -25,6 +27,8 @@ class Tester:
             metrics_path='reports/models/test_metrics.json',
             seed=42,
             top_n=20):
+        load_dotenv()
+        set_experiment(os.environ.get('MLFLOW_EXPERIMENT_NAME'))
         log_params({f'{self.__class__.__qualname__}.{k}': v
                     for k, v in locals().items() if k != 'self'})
         self.kind = kind

@@ -3,16 +3,19 @@ import json
 import time
 from pprint import pprint
 import sys
-from dataclasses import dataclass
+import os
 
 import yaml
 from gensim.models import Word2Vec
 from gensim.models.callbacks import CallbackAny2Vec
 import pandas as pd
-from mlflow import log_metric, log_params, log_artifact
+from mlflow import log_metric, log_params, log_artifact, set_experiment
+from mlflow.pyfunc import log_model
+from dotenv import load_dotenv
+
+from model import Recommender
 
 
-@dataclass
 class Trainer:
     def __init__(
             self,
@@ -24,6 +27,8 @@ class Trainer:
             max_vocab_size=None, sample=1e-3, seed=1, workers=1, min_alpha=0.0001, sg=0,
             hs=0, negative=5, ns_exponent=0.75, cbow_mean=1, epochs=5,
             batch_words=10000, max_final_vocab=None, shrink_windows=True):
+        load_dotenv()
+        set_experiment(os.environ.get('MLFLOW_EXPERIMENT_NAME'))
         log_params({f'{self.__class__.__qualname__}.{k}': v
                     for k, v in locals().items() if k != 'self'})
         self.processed_path = processed_path
@@ -149,7 +154,14 @@ class Logger(CallbackAny2Vec):
         log_metric_walk(metrics, 'Trainer')
 
         model.save(str(self.output_path))
-
+        artifacts = {
+            "model_path": "models/word2vec.bin.gz",
+            "preprocessor_params": 'params_preprocess.yaml'
+        }
+        log_model(artifact_path="models/word2vec",
+                  python_model=Recommender(),
+                  registered_model_name="recommender",
+                  artifacts=artifacts)
         log_artifact(str(self.plots_path))
 
 
