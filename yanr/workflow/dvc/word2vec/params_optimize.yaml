@@ -1,0 +1,21 @@
+n_trials: 2
+timeout: 100
+load_if_exists: True
+sampler: RandomSampler
+sampler_kwargs:
+  seed: 42
+pruner: MedianPruner
+pruner_kwargs:
+  n_startup_trials: 5
+  n_warmup_steps: 0
+  interval_steps: 1
+  n_min_trials: 1
+subprocess_kwargs:
+  args: ['python', '-m', 'dvc', 'repro']
+params:
+  epochs@params_train.yaml:
+    method: suggest_int
+    low: 7
+    high: 10
+metrics:
+  mean@reports/models/test_metrics.json: maximize
