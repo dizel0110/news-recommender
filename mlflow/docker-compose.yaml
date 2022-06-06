@@ -82,6 +82,22 @@ services:
     depends_on:
       - mlflow
 
+  optuna:
+    container_name: optuna_container
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${OPTUNA_USER}
+      POSTGRES_PASSWORD: ${OPTUNA_PASSWORD}
+      POSTGRES_DB: ${OPTUNA_DB}
+      PGPORT: 5433
+    volumes:
+      - optuna-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5433"
+    networks:
+      - frontend_network
+
 #  app:
 #    image: model_service
 #    container_name: model_service
@@ -118,8 +134,9 @@ networks:
     driver: bridge
   backend_network:
     driver: bridge
-    
+
 volumes:
   postgres-data:
+  optuna-data:
   pgadmin-data:
 #  nexus:
