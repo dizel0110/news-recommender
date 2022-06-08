@@ -94,9 +94,10 @@ class Optimizer:
         for path, kwargs in self.params.items():
             local_path, global_path = path.split('@')
             method = getattr(trial, kwargs['method'])
-            kwargs.pop('method')
+            m = kwargs.pop('method')
             kwargs.setdefault('name', local_path)
             v = method(**kwargs)
+            kwargs['method'] = m
             gp = Path(global_path)
             with open(gp) as f:
                 if gp.suffix == '.json':
